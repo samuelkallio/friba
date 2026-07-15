@@ -50,10 +50,15 @@
             margin: 0;
         }
 
-        .help-btn {
+        .header-actions {
+            display: flex;
+            gap: 4px;
+        }
+
+        .header-btn {
             background: none;
             border: none;
-            font-size: 24px;
+            font-size: 22px;
             cursor: pointer;
             padding: 4px 8px;
             min-height: 40px;
@@ -66,11 +71,11 @@
             justify-content: center;
         }
 
-        .help-btn:hover {
+        .header-btn:hover {
             background: #eef2f6;
         }
 
-        .help-btn:active {
+        .header-btn:active {
             background: #cbd5e1;
         }
 
@@ -233,6 +238,92 @@
         .privacy-badge .warn {
             color: #b91c1c;
             font-weight: 500;
+        }
+
+        /* ============================================================
+           SHARE MODAL
+           ============================================================ */
+        .share-url-container {
+            display: flex;
+            gap: 8px;
+            margin-top: 12px;
+            align-items: center;
+        }
+
+        .share-url-container input {
+            flex: 1;
+            border: 1px solid #cbd5e1;
+            border-radius: 6px;
+            padding: 8px 12px;
+            font-size: 14px;
+            background: #f8f9fa;
+            color: #0f172a;
+            min-height: 40px;
+            outline: none;
+            -webkit-user-select: all;
+            user-select: all;
+        }
+
+        .share-url-container input:focus {
+            border-color: #64748b;
+        }
+
+        .share-url-container button {
+            flex-shrink: 0;
+            background: #1e293b;
+            border: none;
+            border-radius: 6px;
+            padding: 8px 16px;
+            font-size: 14px;
+            font-weight: 500;
+            color: #fff;
+            cursor: pointer;
+            min-height: 40px;
+            transition: background 0.1s;
+        }
+
+        .share-url-container button:hover {
+            background: #0f172a;
+        }
+
+        .share-url-container button:active {
+            background: #334155;
+        }
+
+        .share-qr {
+            text-align: center;
+            margin: 8px 0 4px 0;
+        }
+
+        .share-qr img {
+            max-width: 200px;
+            height: auto;
+            border-radius: 8px;
+            background: #fff;
+            padding: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        }
+
+        /* Toast for copy feedback */
+        .copy-toast {
+            position: fixed;
+            bottom: 80px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #0f172a;
+            color: #fff;
+            padding: 8px 20px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            z-index: 1001;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            pointer-events: none;
+        }
+
+        .copy-toast.show {
+            opacity: 1;
         }
 
         /* ============================================================
@@ -817,12 +908,29 @@
                 padding: 2px 12px;
                 margin-left: 8px;
             }
+            .share-url-container {
+                flex-wrap: wrap;
+            }
+            .share-url-container input {
+                width: 100%;
+            }
+            .share-url-container button {
+                width: 100%;
+            }
+            .share-qr img {
+                max-width: 150px;
+            }
         }
     </style>
 </head>
 <body>
 
     <div class="app-container">
+
+        <!-- ============================================================
+        COPY TOAST (for share copy)
+        ============================================================ -->
+        <div class="copy-toast" id="copyToast">✅ Copied to clipboard!</div>
 
         <!-- ============================================================
         VERSION UPDATE TOAST
@@ -833,11 +941,14 @@
         </div>
 
         <!-- ============================================================
-        HEADER with Help Button
+        HEADER with Help & Share Buttons
         ============================================================ -->
         <div class="app-header">
             <h1>🥏 Disc Golf</h1>
-            <button class="help-btn" id="helpBtn" aria-label="Help">❓</button>
+            <div class="header-actions">
+                <button class="header-btn" id="shareBtn" aria-label="Share">📤</button>
+                <button class="header-btn" id="helpBtn" aria-label="Help">❓</button>
+            </div>
         </div>
 
         <!-- ============================================================
@@ -883,9 +994,37 @@
                     </div>
 
                     <p style="margin-top: 12px; font-size: 13px; color: #94a3b8;">
-                        Version 1.1.1 · Open source · Works completely offline
+                        Version 1.1.2 · Open source · Works completely offline
                     </p>
 
+                </div>
+            </div>
+        </div>
+
+        <!-- ============================================================
+        SHARE MODAL
+        ============================================================ -->
+        <div class="modal-overlay" id="shareModal">
+            <div class="modal">
+                <div class="modal-header">
+                    <h2>📤 Share</h2>
+                    <button class="modal-close" id="shareCloseBtn">✕</button>
+                </div>
+                <div class="modal-body">
+                    <p><strong>Scan the QR code</strong> or copy the link below to share this app with others.</p>
+
+                    <div class="share-qr">
+                        <img id="qrCodeImage" src="" alt="QR Code" />
+                    </div>
+
+                    <div class="share-url-container">
+                        <input type="text" id="shareUrlInput" readonly value="" />
+                        <button id="copyShareBtn">📋 Copy</button>
+                    </div>
+
+                    <p style="margin-top: 12px; font-size: 13px; color: #94a3b8;">
+                        All data is stored locally on each device.
+                    </p>
                 </div>
             </div>
         </div>
@@ -966,7 +1105,7 @@
         VERSION INFO
         ============================================================ -->
         <div class="version-info">
-            <span id="versionDisplay">Version 1.1.1</span>
+            <span id="versionDisplay">Version 1.1.2</span>
             <button id="forceRefreshBtn">🔄 Load latest version</button>
         </div>
 
@@ -982,7 +1121,7 @@
             // ============================================================
             // VERSION CONTROL
             // ============================================================
-            var APP_VERSION = '1.1.1';
+            var APP_VERSION = '1.1.2';
             var VERSION_STORAGE_KEY = 'discgolf_app_version';
 
             function checkVersion() {
@@ -1069,6 +1208,102 @@
                 if (e.key === 'Escape' && helpModal.classList.contains('active')) {
                     closeHelp();
                 }
+            });
+
+            // ============================================================
+            // SHARE MODAL
+            // ============================================================
+            var shareBtn = document.getElementById('shareBtn');
+            var shareModal = document.getElementById('shareModal');
+            var shareCloseBtn = document.getElementById('shareCloseBtn');
+            var shareUrlInput = document.getElementById('shareUrlInput');
+            var qrCodeImage = document.getElementById('qrCodeImage');
+            var copyShareBtn = document.getElementById('copyShareBtn');
+            var copyToast = document.getElementById('copyToast');
+            var copyToastTimeout = null;
+
+            function openShare() {
+                var url = window.location.href.split('?')[0]; // clean URL without query params
+                shareUrlInput.value = url;
+                // Generate QR code using QR server API
+                var qrUrl = 'https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=' + encodeURIComponent(url);
+                qrCodeImage.src = qrUrl;
+                shareModal.classList.add('active');
+                document.body.style.overflow = 'hidden';
+            }
+
+            function closeShare() {
+                shareModal.classList.remove('active');
+                document.body.style.overflow = '';
+            }
+
+            shareBtn.addEventListener('click', openShare);
+            shareCloseBtn.addEventListener('click', closeShare);
+
+            shareModal.addEventListener('click', function(e) {
+                if (e.target === shareModal) {
+                    closeShare();
+                }
+            });
+
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape' && shareModal.classList.contains('active')) {
+                    closeShare();
+                }
+            });
+
+            // Copy to clipboard
+            function copyToClipboard(text) {
+                if (navigator.clipboard && navigator.clipboard.writeText) {
+                    navigator.clipboard.writeText(text).then(function() {
+                        showCopyToast('✅ Copied to clipboard!');
+                    }).catch(function() {
+                        fallbackCopy(text);
+                    });
+                } else {
+                    fallbackCopy(text);
+                }
+            }
+
+            function fallbackCopy(text) {
+                var textarea = document.createElement('textarea');
+                textarea.value = text;
+                textarea.style.position = 'fixed';
+                textarea.style.left = '-9999px';
+                textarea.style.top = '-9999px';
+                document.body.appendChild(textarea);
+                textarea.select();
+                try {
+                    var success = document.execCommand('copy');
+                    if (success) {
+                        showCopyToast('✅ Copied to clipboard!');
+                    } else {
+                        showCopyToast('❌ Copy failed. Please copy manually.');
+                    }
+                } catch (e) {
+                    showCopyToast('❌ Copy failed. Please copy manually.');
+                }
+                document.body.removeChild(textarea);
+            }
+
+            function showCopyToast(message) {
+                copyToast.textContent = message;
+                copyToast.classList.add('show');
+                if (copyToastTimeout) {
+                    clearTimeout(copyToastTimeout);
+                }
+                copyToastTimeout = setTimeout(function() {
+                    copyToast.classList.remove('show');
+                }, 2500);
+            }
+
+            copyShareBtn.addEventListener('click', function() {
+                copyToClipboard(shareUrlInput.value);
+            });
+
+            // Click on the input field selects all text
+            shareUrlInput.addEventListener('click', function() {
+                this.select();
             });
 
             // ============================================================
