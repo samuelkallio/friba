@@ -32,14 +32,212 @@
             padding: 12px 16px 20px;
         }
 
-        h1 {
-            font-size: 22px;
-            font-weight: 600;
-            color: #0f172a;
+        /* ============================================================
+           HEADER
+           ============================================================ */
+        .app-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
             margin-bottom: 8px;
             padding: 0 4px;
         }
 
+        .app-header h1 {
+            font-size: 22px;
+            font-weight: 600;
+            color: #0f172a;
+            margin: 0;
+        }
+
+        .help-btn {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            padding: 4px 8px;
+            min-height: 40px;
+            min-width: 40px;
+            border-radius: 50%;
+            transition: background 0.15s;
+            color: #64748b;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .help-btn:hover {
+            background: #eef2f6;
+        }
+
+        .help-btn:active {
+            background: #cbd5e1;
+        }
+
+        /* ============================================================
+           HELP MODAL
+           ============================================================ */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 999;
+            padding: 20px;
+            backdrop-filter: blur(4px);
+            -webkit-backdrop-filter: blur(4px);
+        }
+
+        .modal-overlay.active {
+            display: flex;
+        }
+
+        .modal {
+            background: #ffffff;
+            border-radius: 16px;
+            max-width: 480px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+            padding: 24px 28px 28px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            animation: modalIn 0.2s ease-out;
+        }
+
+        @keyframes modalIn {
+            from {
+                opacity: 0;
+                transform: scale(0.95) translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1) translateY(0);
+            }
+        }
+
+        .modal-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 16px;
+            padding-bottom: 12px;
+            border-bottom: 2px solid #eef2f6;
+        }
+
+        .modal-header h2 {
+            font-size: 20px;
+            font-weight: 600;
+            color: #0f172a;
+            margin: 0;
+            border: none;
+            padding: 0;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 28px;
+            cursor: pointer;
+            color: #94a3b8;
+            padding: 0 4px;
+            min-height: 36px;
+            min-width: 36px;
+            line-height: 1;
+            border-radius: 50%;
+            transition: background 0.15s;
+        }
+
+        .modal-close:hover {
+            background: #f1f5f9;
+            color: #1e293b;
+        }
+
+        .modal-body {
+            font-size: 15px;
+            color: #334155;
+            line-height: 1.6;
+        }
+
+        .modal-body p {
+            margin-bottom: 12px;
+        }
+
+        .modal-body p:last-child {
+            margin-bottom: 0;
+        }
+
+        .modal-body strong {
+            color: #0f172a;
+        }
+
+        .modal-body .feature-list {
+            list-style: none;
+            padding: 0;
+            margin: 8px 0 16px 0;
+        }
+
+        .modal-body .feature-list li {
+            padding: 4px 0 4px 24px;
+            position: relative;
+        }
+
+        .modal-body .feature-list li::before {
+            content: "•";
+            position: absolute;
+            left: 4px;
+            color: #0b6e4f;
+            font-weight: bold;
+            font-size: 18px;
+        }
+
+        .privacy-badge {
+            background: #f1f5f9;
+            border-radius: 8px;
+            padding: 12px 16px;
+            margin-top: 12px;
+            border-left: 4px solid #0b6e4f;
+        }
+
+        .privacy-badge strong {
+            display: block;
+            color: #0f172a;
+            margin-bottom: 4px;
+        }
+
+        .privacy-badge ul {
+            list-style: none;
+            padding: 0;
+            margin: 4px 0 0 0;
+        }
+
+        .privacy-badge ul li {
+            padding: 2px 0 2px 20px;
+            position: relative;
+            font-size: 14px;
+            color: #475569;
+        }
+
+        .privacy-badge ul li::before {
+            content: "✓";
+            position: absolute;
+            left: 0;
+            color: #0b6e4f;
+            font-weight: bold;
+        }
+
+        .privacy-badge .warn {
+            color: #b91c1c;
+            font-weight: 500;
+        }
+
+        /* ============================================================
+           REST OF STYLES (unchanged from before)
+           ============================================================ */
         h2 {
             font-size: 16px;
             font-weight: 500;
@@ -154,9 +352,7 @@
             padding-right: 36px;
         }
 
-        /* ============================================================
-           TAB NAVIGATION
-           ============================================================ */
+        /* Tabs */
         .tab-bar {
             display: flex;
             gap: 2px;
@@ -192,9 +388,6 @@
             transform: scale(0.96);
         }
 
-        /* ============================================================
-           SECTION PANELS
-           ============================================================ */
         .section {
             background: #ffffff;
             border-radius: 10px;
@@ -208,9 +401,7 @@
             display: block;
         }
 
-        /* ============================================================
-           STANDINGS TABLE
-           ============================================================ */
+        /* Standings */
         .standings-wrap {
             overflow-x: auto;
             -webkit-overflow-scrolling: touch;
@@ -271,9 +462,7 @@
             font-size: 14px;
         }
 
-        /* ============================================================
-           PLAYING VIEW - SCORE ENTRY
-           ============================================================ */
+        /* Playing view */
         .hole-header {
             background: #eef2f6;
             padding: 8px 12px;
@@ -330,9 +519,7 @@
             font-size: 17px;
         }
 
-        /* ============================================================
-           HISTORY TABLE
-           ============================================================ */
+        /* History */
         .history-controls {
             display: flex;
             gap: 8px;
@@ -415,9 +602,7 @@
             font-size: 14px;
         }
 
-        /* ============================================================
-           SETTINGS - PLAYER MANAGEMENT
-           ============================================================ */
+        /* Settings */
         .setup-row {
             display: flex;
             gap: 8px;
@@ -491,9 +676,7 @@
             background: #b91c1c;
         }
 
-        /* ============================================================
-           COMPLETE VIEW
-           ============================================================ */
+        /* Complete */
         .complete-msg {
             text-align: center;
             font-size: 18px;
@@ -514,9 +697,7 @@
             font-size: 17px;
         }
 
-        /* ============================================================
-           VERSION INFO
-           ============================================================ */
+        /* Version info */
         .version-info {
             text-align: center;
             font-size: 12px;
@@ -537,9 +718,6 @@
             min-height: 30px;
         }
 
-        /* ============================================================
-           UTILITY
-           ============================================================ */
         .text-center {
             text-align: center;
         }
@@ -547,9 +725,6 @@
             color: #94a3b8;
         }
 
-        /* ============================================================
-           RESPONSIVE
-           ============================================================ */
         @media (max-width: 400px) {
             .score-entry .score-row .s-select {
                 width: 110px;
@@ -571,6 +746,13 @@
             .setup-row input[type="text"] {
                 width: 100%;
             }
+            .modal {
+                padding: 20px;
+                margin: 10px;
+            }
+            .modal-header h2 {
+                font-size: 18px;
+            }
         }
     </style>
 </head>
@@ -579,9 +761,62 @@
     <div class="app-container">
 
         <!-- ============================================================
-        HEADER
+        HEADER with Help Button
         ============================================================ -->
-        <h1>🥏 Disc Golf</h1>
+        <div class="app-header">
+            <h1>🥏 Disc Golf</h1>
+            <button class="help-btn" id="helpBtn" aria-label="Help">❓</button>
+        </div>
+
+        <!-- ============================================================
+        HELP MODAL
+        ============================================================ -->
+        <div class="modal-overlay" id="helpModal">
+            <div class="modal">
+                <div class="modal-header">
+                    <h2>❓ Help</h2>
+                    <button class="modal-close" id="helpCloseBtn">✕</button>
+                </div>
+                <div class="modal-body">
+
+                    <p><strong>How to use:</strong></p>
+                    <ul class="feature-list">
+                        <li><strong>Settings</strong> — Add players, then tap <strong>"Start round"</strong></li>
+                        <li><strong>Play</strong> — Select each player's score for the hole and tap <strong>"Save hole"</strong></li>
+                        <li><strong>History</strong> — View and edit scores from any hole</li>
+                        <li><strong>Standings</strong> — See live rankings and total scores</li>
+                    </ul>
+
+                    <p>
+                        <strong>Playing order:</strong> On the first hole, order follows the player list.
+                        On subsequent holes, the player with the <strong>best score</strong> from the previous hole
+                        plays first (lowest score leads).
+                    </p>
+
+                    <p>
+                        <strong>Removing players:</strong> When you remove a player from Settings,
+                        their scores are <strong>preserved</strong> in History for reference.
+                    </p>
+
+                    <div class="privacy-badge">
+                        <strong>🔒 Privacy &amp; Data</strong>
+                        <ul>
+                            <li>All data is stored <strong>locally</strong> in your browser's Local Storage</li>
+                            <li>No data is ever sent to any server — <strong>100% offline</strong></li>
+                            <li>No cookies, no tracking, no analytics</li>
+                            <li>Clearing your browser's Local Storage will delete all data</li>
+                            <li>Data is <strong>not</strong> shared between devices or browsers</li>
+                            <li class="warn">⚠️ If you clear your browser cache/history, your scores will be lost</li>
+                        </ul>
+                    </div>
+
+                    <p style="margin-top: 12px; font-size: 13px; color: #94a3b8;">
+                        Version 1.0.2 · Open source · Works completely offline
+                    </p>
+
+                </div>
+            </div>
+        </div>
 
         <!-- ============================================================
         TAB BAR
@@ -703,6 +938,40 @@
             }
 
             // ============================================================
+            // HELP MODAL
+            // ============================================================
+            var helpBtn = document.getElementById('helpBtn');
+            var helpModal = document.getElementById('helpModal');
+            var helpCloseBtn = document.getElementById('helpCloseBtn');
+
+            function openHelp() {
+                helpModal.classList.add('active');
+                document.body.style.overflow = 'hidden';
+            }
+
+            function closeHelp() {
+                helpModal.classList.remove('active');
+                document.body.style.overflow = '';
+            }
+
+            helpBtn.addEventListener('click', openHelp);
+            helpCloseBtn.addEventListener('click', closeHelp);
+
+            // Close on overlay click (background)
+            helpModal.addEventListener('click', function(e) {
+                if (e.target === helpModal) {
+                    closeHelp();
+                }
+            });
+
+            // Close on Escape key
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape' && helpModal.classList.contains('active')) {
+                    closeHelp();
+                }
+            });
+
+            // ============================================================
             // SCORE OPTIONS
             // ============================================================
             var SCORE_OPTIONS = [
@@ -732,7 +1001,7 @@
                 scores: {},
                 removedPlayersHistory: {},
                 currentHole: 1,
-                phase: 'setup', // 'setup' | 'playing' | 'complete'
+                phase: 'setup',
                 previousHoleScores: {}
             };
 
@@ -1193,7 +1462,6 @@
             function renderSettings() {
                 state = loadState();
 
-                // Update round action button
                 if (state.phase === 'setup' || state.players.length === 0) {
                     roundActionBtn.textContent = '🚀 Start round';
                     roundActionBtn.className = 'primary';
@@ -1280,7 +1548,6 @@
 
             function handleRoundAction() {
                 if (state.phase === 'setup') {
-                    // Start round
                     if (state.players.length === 0) {
                         alert('Add at least one player.');
                         return;
@@ -1305,13 +1572,11 @@
                     });
 
                 } else if (state.phase === 'playing') {
-                    // End round
                     if (confirm('End the current round? This will mark it as complete.')) {
                         endRound();
                     }
 
                 } else if (state.phase === 'complete') {
-                    // New round
                     if (confirm('Start a new round? All current data will be cleared.')) {
                         resetForNewRound();
                     }
@@ -1425,16 +1690,12 @@
             // INIT
             // ============================================================
             function init() {
-                // Check version
                 checkVersion();
 
-                // Force refresh button
                 forceRefreshBtn.addEventListener('click', forceRefresh);
 
-                // Handle page load with version param - ensure fresh load
                 var urlParams = new URLSearchParams(window.location.search);
                 if (urlParams.has('v')) {
-                    // If loaded with version param, remove it from URL after load
                     var cleanUrl = window.location.href.split('?')[0];
                     if (window.history && window.history.replaceState) {
                         window.history.replaceState({}, document.title, cleanUrl);
@@ -1471,7 +1732,6 @@
                 console.log('State:', state);
             }
 
-            // Run init when DOM is ready
             if (document.readyState === 'loading') {
                 document.addEventListener('DOMContentLoaded', init);
             } else {
