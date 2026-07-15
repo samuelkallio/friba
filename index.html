@@ -883,7 +883,7 @@
                     </div>
 
                     <p style="margin-top: 12px; font-size: 13px; color: #94a3b8;">
-                        Version 1.1.0 · Open source · Works completely offline
+                        Version 1.1.1 · Open source · Works completely offline
                     </p>
 
                 </div>
@@ -966,7 +966,7 @@
         VERSION INFO
         ============================================================ -->
         <div class="version-info">
-            <span id="versionDisplay">Version 1.1.0</span>
+            <span id="versionDisplay">Version 1.1.1</span>
             <button id="forceRefreshBtn">🔄 Load latest version</button>
         </div>
 
@@ -982,7 +982,7 @@
             // ============================================================
             // VERSION CONTROL
             // ============================================================
-            var APP_VERSION = '1.1.0';
+            var APP_VERSION = '1.1.1';
             var VERSION_STORAGE_KEY = 'discgolf_app_version';
 
             function checkVersion() {
@@ -993,7 +993,6 @@
                     if (savedVersion && savedVersion !== APP_VERSION) {
                         console.log('Old version detected:', savedVersion, '-> new:', APP_VERSION);
                         localStorage.setItem(VERSION_STORAGE_KEY, APP_VERSION);
-                        // Show toast notification
                         showVersionToast('🔄 New version ' + APP_VERSION + ' loaded!');
                         return true;
                     } else if (!savedVersion) {
@@ -1015,7 +1014,6 @@
                 toastMsg.textContent = message;
                 toast.classList.add('show');
 
-                // Auto-hide after 6 seconds
                 if (toastTimeout) {
                     clearTimeout(toastTimeout);
                 }
@@ -1023,7 +1021,6 @@
                     toast.classList.remove('show');
                 }, 6000);
 
-                // Hide on button click
                 var toastBtn = document.getElementById('versionToastBtn');
                 toastBtn.onclick = function() {
                     toast.classList.remove('show');
@@ -1793,10 +1790,8 @@
             // INIT
             // ============================================================
             function init() {
-                // Check version first
                 var versionUpdated = checkVersion();
 
-                // Force refresh button
                 forceRefreshBtn.addEventListener('click', forceRefresh);
 
                 var urlParams = new URLSearchParams(window.location.search);
@@ -1836,11 +1831,8 @@
                 console.log('Disc Golf Tracker initialized. Version:', APP_VERSION);
                 console.log('State:', state);
 
-                // If version was updated, show toast with a slight delay so UI is ready
                 if (versionUpdated) {
-                    setTimeout(function() {
-                        // Toast is already shown by checkVersion()
-                    }, 100);
+                    setTimeout(function() {}, 100);
                 }
             }
 
