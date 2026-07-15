@@ -236,6 +236,61 @@
         }
 
         /* ============================================================
+           VERSION UPDATE TOAST
+           ============================================================ */
+        .version-toast {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #0f172a;
+            color: #fff;
+            padding: 12px 20px;
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: 500;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+            z-index: 1000;
+            display: none;
+            max-width: 90%;
+            text-align: center;
+            animation: slideUp 0.3s ease-out;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateX(-50%) translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(-50%) translateY(0);
+            }
+        }
+
+        .version-toast.show {
+            display: block;
+        }
+
+        .version-toast button {
+            background: #0b6e4f;
+            border: none;
+            color: #fff;
+            padding: 4px 16px;
+            border-radius: 4px;
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            margin-left: 12px;
+            min-height: 32px;
+            min-width: auto;
+        }
+
+        .version-toast button:hover {
+            background: #085a40;
+        }
+
+        /* ============================================================
            REST OF STYLES (unchanged from before)
            ============================================================ */
         h2 {
@@ -753,12 +808,29 @@
             .modal-header h2 {
                 font-size: 18px;
             }
+            .version-toast {
+                font-size: 13px;
+                padding: 10px 16px;
+            }
+            .version-toast button {
+                font-size: 12px;
+                padding: 2px 12px;
+                margin-left: 8px;
+            }
         }
     </style>
 </head>
 <body>
 
     <div class="app-container">
+
+        <!-- ============================================================
+        VERSION UPDATE TOAST
+        ============================================================ -->
+        <div class="version-toast" id="versionToast">
+            <span id="versionToastMessage">🔄 New version loaded!</span>
+            <button id="versionToastBtn">OK</button>
+        </div>
 
         <!-- ============================================================
         HEADER with Help Button
@@ -811,7 +883,7 @@
                     </div>
 
                     <p style="margin-top: 12px; font-size: 13px; color: #94a3b8;">
-                        Version 1.0.2 · Open source · Works completely offline
+                        Version 1.1.0 · Open source · Works completely offline
                     </p>
 
                 </div>
@@ -894,7 +966,7 @@
         VERSION INFO
         ============================================================ -->
         <div class="version-info">
-            <span id="versionDisplay">Version 1.0.2</span>
+            <span id="versionDisplay">Version 1.1.0</span>
             <button id="forceRefreshBtn">🔄 Load latest version</button>
         </div>
 
@@ -910,7 +982,7 @@
             // ============================================================
             // VERSION CONTROL
             // ============================================================
-            var APP_VERSION = '1.0.2';
+            var APP_VERSION = '1.1.0';
             var VERSION_STORAGE_KEY = 'discgolf_app_version';
 
             function checkVersion() {
@@ -921,12 +993,45 @@
                     if (savedVersion && savedVersion !== APP_VERSION) {
                         console.log('Old version detected:', savedVersion, '-> new:', APP_VERSION);
                         localStorage.setItem(VERSION_STORAGE_KEY, APP_VERSION);
+                        // Show toast notification
+                        showVersionToast('🔄 New version ' + APP_VERSION + ' loaded!');
+                        return true;
                     } else if (!savedVersion) {
                         localStorage.setItem(VERSION_STORAGE_KEY, APP_VERSION);
                     }
+                    return false;
                 } catch (e) {
                     console.warn('Version check failed:', e);
+                    return false;
                 }
+            }
+
+            // Toast notification for version updates
+            var toastTimeout = null;
+
+            function showVersionToast(message) {
+                var toast = document.getElementById('versionToast');
+                var toastMsg = document.getElementById('versionToastMessage');
+                toastMsg.textContent = message;
+                toast.classList.add('show');
+
+                // Auto-hide after 6 seconds
+                if (toastTimeout) {
+                    clearTimeout(toastTimeout);
+                }
+                toastTimeout = setTimeout(function() {
+                    toast.classList.remove('show');
+                }, 6000);
+
+                // Hide on button click
+                var toastBtn = document.getElementById('versionToastBtn');
+                toastBtn.onclick = function() {
+                    toast.classList.remove('show');
+                    if (toastTimeout) {
+                        clearTimeout(toastTimeout);
+                        toastTimeout = null;
+                    }
+                };
             }
 
             function forceRefresh() {
@@ -957,14 +1062,12 @@
             helpBtn.addEventListener('click', openHelp);
             helpCloseBtn.addEventListener('click', closeHelp);
 
-            // Close on overlay click (background)
             helpModal.addEventListener('click', function(e) {
                 if (e.target === helpModal) {
                     closeHelp();
                 }
             });
 
-            // Close on Escape key
             document.addEventListener('keydown', function(e) {
                 if (e.key === 'Escape' && helpModal.classList.contains('active')) {
                     closeHelp();
@@ -1690,8 +1793,10 @@
             // INIT
             // ============================================================
             function init() {
-                checkVersion();
+                // Check version first
+                var versionUpdated = checkVersion();
 
+                // Force refresh button
                 forceRefreshBtn.addEventListener('click', forceRefresh);
 
                 var urlParams = new URLSearchParams(window.location.search);
@@ -1730,6 +1835,13 @@
 
                 console.log('Disc Golf Tracker initialized. Version:', APP_VERSION);
                 console.log('State:', state);
+
+                // If version was updated, show toast with a slight delay so UI is ready
+                if (versionUpdated) {
+                    setTimeout(function() {
+                        // Toast is already shown by checkVersion()
+                    }, 100);
+                }
             }
 
             if (document.readyState === 'loading') {
