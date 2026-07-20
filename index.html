@@ -7,7 +7,948 @@
     <meta http-equiv="Pragma" content="no-cache" />
     <meta http-equiv="Expires" content="0" />
     <title>Disc Golf Score Tracker</title>
-    <link rel="stylesheet" href="css/style.css" />
+    <style>
+        /* ============================================================
+           GLOBAL RESET & BASE
+           ============================================================ */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background: #f8f9fa;
+            color: #1e293b;
+            padding: 0;
+            max-width: 640px;
+            margin: 0 auto;
+            line-height: 1.5;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        #app {
+            padding: 12px 16px 20px;
+        }
+
+        /* ============================================================
+           HEADER
+           ============================================================ */
+        .app-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            padding: 0 4px;
+        }
+
+        .app-header h1 {
+            font-size: 22px;
+            font-weight: 600;
+            color: #0f172a;
+            margin: 0;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 4px;
+        }
+
+        .header-btn {
+            background: none;
+            border: none;
+            font-size: 22px;
+            cursor: pointer;
+            padding: 4px 8px;
+            min-height: 40px;
+            min-width: 40px;
+            border-radius: 50%;
+            transition: background 0.15s;
+            color: #64748b;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .header-btn:hover {
+            background: #eef2f6;
+        }
+
+        .header-btn:active {
+            background: #cbd5e1;
+        }
+
+        /* ============================================================
+           TAB BAR
+           ============================================================ */
+        .tab-bar {
+            display: flex;
+            gap: 2px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 4px 0;
+            margin-bottom: 12px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .tab-bar button {
+            flex: 1;
+            border: none;
+            border-radius: 8px;
+            background: transparent;
+            padding: 8px 6px;
+            font-weight: 500;
+            font-size: 13px;
+            color: #94a3b8;
+            min-height: 38px;
+            transition: all 0.15s;
+        }
+
+        .tab-bar button.active {
+            background: #fff;
+            color: #0f172a;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+        }
+
+        .tab-bar button:active {
+            transform: scale(0.96);
+        }
+
+        /* ============================================================
+           SECTIONS
+           ============================================================ */
+        .section {
+            background: #ffffff;
+            border-radius: 10px;
+            padding: 16px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+            margin-bottom: 12px;
+            display: none;
+        }
+
+        .section.active {
+            display: block;
+        }
+
+        .section h2 {
+            font-size: 16px;
+            font-weight: 500;
+            color: #334155;
+            margin-bottom: 10px;
+            border-bottom: 1px solid #e2e8f0;
+            padding-bottom: 6px;
+        }
+
+        /* ============================================================
+           BUTTONS & INPUTS
+           ============================================================ */
+        button {
+            background: #eef2f6;
+            border: 1px solid #cbd5e1;
+            border-radius: 6px;
+            padding: 8px 16px;
+            font-size: 15px;
+            font-weight: 500;
+            color: #0f172a;
+            cursor: pointer;
+            touch-action: manipulation;
+            user-select: none;
+            min-height: 44px;
+            min-width: 44px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.1s, border-color 0.1s;
+        }
+
+        button:hover {
+            background: #e2e8f0;
+        }
+
+        button:active {
+            background: #cbd5e1;
+        }
+
+        button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            pointer-events: none;
+        }
+
+        button.primary {
+            background: #1e293b;
+            border-color: #1e293b;
+            color: #fff;
+        }
+
+        button.primary:hover {
+            background: #0f172a;
+            border-color: #0f172a;
+        }
+
+        button.success {
+            background: #0b6e4f;
+            border-color: #0b6e4f;
+            color: #fff;
+        }
+
+        button.success:hover {
+            background: #085a40;
+            border-color: #085a40;
+        }
+
+        button.danger {
+            background: #b91c1c;
+            border-color: #b91c1c;
+            color: #fff;
+        }
+
+        button.danger:hover {
+            background: #991b1b;
+            border-color: #991b1b;
+        }
+
+        button.secondary {
+            background: #e2e8f0;
+            border-color: #94a3b8;
+            color: #1e293b;
+        }
+
+        button.secondary:hover {
+            background: #cbd5e1;
+        }
+
+        input[type="text"],
+        select {
+            border: 1px solid #cbd5e1;
+            border-radius: 6px;
+            padding: 8px 12px;
+            font-size: 16px;
+            width: 100%;
+            background: #fff;
+            color: #0f172a;
+            min-height: 44px;
+            outline: none;
+            -webkit-appearance: none;
+            appearance: none;
+            transition: border-color 0.1s;
+        }
+
+        input[type="text"]:focus,
+        select:focus {
+            border-color: #64748b;
+        }
+
+        select {
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23475569' stroke-width='1.5' fill='none'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 12px center;
+            padding-right: 36px;
+        }
+
+        /* ============================================================
+           PLAYING VIEW
+           ============================================================ */
+        .hole-header {
+            background: #eef2f6;
+            padding: 8px 12px;
+            border-radius: 6px;
+            margin-bottom: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            color: #0f172a;
+            text-align: center;
+        }
+
+        .score-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 6px 0;
+            border-bottom: 1px solid #f1f5f9;
+        }
+
+        .score-row:last-child {
+            border-bottom: none;
+        }
+
+        .score-row .s-name {
+            flex: 1;
+            font-weight: 500;
+            font-size: 16px;
+            min-width: 60px;
+        }
+
+        .score-row .s-select {
+            width: 140px;
+            flex-shrink: 0;
+        }
+
+        .score-row .s-select select {
+            text-align: center;
+            font-size: 16px;
+            font-weight: 500;
+            padding: 6px 30px 6px 8px;
+            min-height: 44px;
+        }
+
+        .save-row {
+            margin-top: 12px;
+            display: flex;
+            gap: 8px;
+        }
+
+        .save-row button {
+            flex: 1;
+            min-height: 48px;
+            font-size: 17px;
+        }
+
+        .odd-player-note {
+            background: #fef9e7;
+            border-left: 4px solid #f59e0b;
+            padding: 8px 12px;
+            margin-top: 8px;
+            font-size: 14px;
+            color: #92400e;
+            border-radius: 4px;
+        }
+
+        /* ============================================================
+           STANDINGS
+           ============================================================ */
+        .standings-wrap {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .standings-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 15px;
+        }
+
+        .standings-table th {
+            text-align: left;
+            font-weight: 600;
+            color: #475569;
+            padding: 6px 8px 6px 0;
+            border-bottom: 2px solid #e2e8f0;
+            font-size: 13px;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+        }
+
+        .standings-table td {
+            padding: 6px 8px 6px 0;
+            border-bottom: 1px solid #f1f5f9;
+        }
+
+        .standings-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .standings-table .rank {
+            font-weight: 600;
+            color: #0f172a;
+            width: 36px;
+        }
+
+        .standings-table .player-name {
+            font-weight: 500;
+        }
+
+        .standings-table .holes {
+            text-align: center;
+            color: #475569;
+            width: 48px;
+        }
+
+        .standings-table .total {
+            font-weight: 600;
+            text-align: right;
+            width: 48px;
+        }
+
+        .standings-empty {
+            color: #94a3b8;
+            text-align: center;
+            padding: 16px 0 8px;
+            font-size: 14px;
+        }
+
+        /* ============================================================
+           HISTORY
+           ============================================================ */
+        .history-controls {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 12px;
+            flex-wrap: wrap;
+        }
+
+        .history-controls button {
+            flex: 1;
+            min-width: 60px;
+        }
+
+        .history-table-wrap {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .history-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px;
+        }
+
+        .history-table th {
+            text-align: center;
+            font-weight: 600;
+            color: #475569;
+            padding: 6px 8px;
+            border-bottom: 2px solid #e2e8f0;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+            position: sticky;
+            top: 0;
+            background: #fff;
+            z-index: 1;
+        }
+
+        .history-table td {
+            text-align: center;
+            padding: 4px 8px;
+            border-bottom: 1px solid #f1f5f9;
+        }
+
+        .history-table .hole-label {
+            font-weight: 600;
+            color: #0f172a;
+            text-align: left;
+        }
+
+        .history-table .score-cell select {
+            width: 70px;
+            font-size: 13px;
+            padding: 4px 24px 4px 6px;
+            min-height: 32px;
+            border: 1px solid #cbd5e1;
+            border-radius: 4px;
+            background-color: #fff;
+        }
+
+        .history-table .score-cell select:focus {
+            border-color: #64748b;
+            outline: none;
+        }
+
+        .history-table .total-row td {
+            font-weight: 600;
+            border-top: 2px solid #e2e8f0;
+            padding-top: 8px;
+        }
+
+        .history-table .total-row .hole-label {
+            font-weight: 700;
+        }
+
+        .history-empty {
+            color: #94a3b8;
+            text-align: center;
+            padding: 16px 0;
+            font-size: 14px;
+        }
+
+        /* ============================================================
+           SETTINGS
+           ============================================================ */
+        .setup-row {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 10px;
+        }
+
+        .setup-row input[type="text"] {
+            flex: 1;
+        }
+
+        .setup-row button {
+            flex-shrink: 0;
+        }
+
+        .player-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px 10px;
+            padding: 4px 0 8px;
+            min-height: 32px;
+        }
+
+        .player-list .player-tag {
+            background: #eef2f6;
+            padding: 4px 12px;
+            border-radius: 16px;
+            font-size: 14px;
+            font-weight: 500;
+            color: #1e293b;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .player-list .player-tag .remove-player {
+            background: none;
+            border: none;
+            color: #b91c1c;
+            font-size: 18px;
+            cursor: pointer;
+            padding: 0 4px;
+            min-height: 24px;
+            min-width: 24px;
+            line-height: 1;
+        }
+
+        .player-list .player-tag .remove-player:active {
+            color: #7f1d1d;
+        }
+
+        .setup-actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 8px;
+        }
+
+        .setup-actions button {
+            flex: 1 1 auto;
+            min-width: 80px;
+        }
+
+        .setup-actions .clear-all-btn {
+            flex: 1 1 100%;
+            background: #dc2626;
+            border-color: #dc2626;
+            color: #fff;
+        }
+
+        .setup-actions .clear-all-btn:active {
+            background: #b91c1c;
+        }
+
+        .setup-option {
+            margin: 12px 0 8px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .setup-option label {
+            font-weight: 500;
+            font-size: 15px;
+            color: #1e293b;
+        }
+
+        .setup-option select {
+            width: auto;
+            min-width: 160px;
+            flex: 1;
+        }
+
+        /* ============================================================
+           COMPLETE
+           ============================================================ */
+        .complete-msg {
+            text-align: center;
+            font-size: 18px;
+            font-weight: 600;
+            color: #0f172a;
+            margin-bottom: 12px;
+        }
+
+        .complete-actions {
+            display: flex;
+            justify-content: center;
+            margin-top: 12px;
+        }
+
+        .complete-actions button {
+            width: 100%;
+            min-height: 48px;
+            font-size: 17px;
+        }
+
+        /* ============================================================
+           MODALS
+           ============================================================ */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 999;
+            padding: 20px;
+            backdrop-filter: blur(4px);
+            -webkit-backdrop-filter: blur(4px);
+        }
+
+        .modal-overlay.active {
+            display: flex;
+        }
+
+        .modal {
+            background: #ffffff;
+            border-radius: 16px;
+            max-width: 480px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+            padding: 24px 28px 28px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            animation: modalIn 0.2s ease-out;
+        }
+
+        @keyframes modalIn {
+            from {
+                opacity: 0;
+                transform: scale(0.95) translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1) translateY(0);
+            }
+        }
+
+        .modal-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 16px;
+            padding-bottom: 12px;
+            border-bottom: 2px solid #eef2f6;
+        }
+
+        .modal-header h2 {
+            font-size: 20px;
+            font-weight: 600;
+            color: #0f172a;
+            margin: 0;
+            border: none;
+            padding: 0;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 28px;
+            cursor: pointer;
+            color: #94a3b8;
+            padding: 0 4px;
+            min-height: 36px;
+            min-width: 36px;
+            line-height: 1;
+            border-radius: 50%;
+            transition: background 0.15s;
+        }
+
+        .modal-close:hover {
+            background: #f1f5f9;
+            color: #1e293b;
+        }
+
+        .modal-body {
+            font-size: 15px;
+            color: #334155;
+            line-height: 1.6;
+        }
+
+        .modal-body p {
+            margin-bottom: 12px;
+        }
+
+        .modal-body p:last-child {
+            margin-bottom: 0;
+        }
+
+        .modal-body strong {
+            color: #0f172a;
+        }
+
+        .modal-body ul {
+            list-style: none;
+            padding: 0;
+            margin: 8px 0 16px 0;
+        }
+
+        .modal-body ul li {
+            padding: 4px 0 4px 24px;
+            position: relative;
+        }
+
+        .modal-body ul li::before {
+            content: "•";
+            position: absolute;
+            left: 4px;
+            color: #0b6e4f;
+            font-weight: bold;
+            font-size: 18px;
+        }
+
+        .privacy-badge {
+            background: #f1f5f9;
+            border-radius: 8px;
+            padding: 12px 16px;
+            margin-top: 12px;
+            border-left: 4px solid #0b6e4f;
+        }
+
+        .privacy-badge strong {
+            display: block;
+            color: #0f172a;
+            margin-bottom: 4px;
+        }
+
+        .privacy-badge ul {
+            margin: 4px 0 0 0;
+        }
+
+        .privacy-badge ul li {
+            padding: 2px 0 2px 20px;
+            position: relative;
+            font-size: 14px;
+            color: #475569;
+        }
+
+        .privacy-badge ul li::before {
+            content: "✓";
+            position: absolute;
+            left: 0;
+            color: #0b6e4f;
+            font-weight: bold;
+        }
+
+        .privacy-badge .warn {
+            color: #b91c1c;
+            font-weight: 500;
+        }
+
+        /* ============================================================
+           SHARE
+           ============================================================ */
+        .share-qr {
+            text-align: center;
+            margin: 8px 0 4px 0;
+        }
+
+        .share-qr img {
+            max-width: 200px;
+            height: auto;
+            border-radius: 8px;
+            background: #fff;
+            padding: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        }
+
+        .share-url-container {
+            display: flex;
+            gap: 8px;
+            margin-top: 12px;
+            align-items: center;
+        }
+
+        .share-url-container input {
+            flex: 1;
+            border: 1px solid #cbd5e1;
+            border-radius: 6px;
+            padding: 8px 12px;
+            font-size: 14px;
+            background: #f8f9fa;
+            color: #0f172a;
+            min-height: 40px;
+            outline: none;
+            -webkit-user-select: all;
+            user-select: all;
+        }
+
+        .share-url-container input:focus {
+            border-color: #64748b;
+        }
+
+        .share-url-container button {
+            flex-shrink: 0;
+            background: #1e293b;
+            border: none;
+            border-radius: 6px;
+            padding: 8px 16px;
+            font-size: 14px;
+            font-weight: 500;
+            color: #fff;
+            cursor: pointer;
+            min-height: 40px;
+            transition: background 0.1s;
+        }
+
+        .share-url-container button:hover {
+            background: #0f172a;
+        }
+
+        /* ============================================================
+           TOASTS
+           ============================================================ */
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #0f172a;
+            color: #fff;
+            padding: 12px 20px;
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: 500;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+            z-index: 1000;
+            display: none;
+            max-width: 90%;
+            text-align: center;
+            animation: slideUp 0.3s ease-out;
+        }
+
+        .toast.show {
+            display: block;
+        }
+
+        .toast button {
+            background: #0b6e4f;
+            border: none;
+            color: #fff;
+            padding: 4px 16px;
+            border-radius: 4px;
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            margin-left: 12px;
+            min-height: 32px;
+            min-width: auto;
+        }
+
+        .toast button:hover {
+            background: #085a40;
+        }
+
+        .copy-toast {
+            bottom: 80px;
+            background: #0f172a;
+            padding: 8px 20px;
+            font-size: 14px;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateX(-50%) translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(-50%) translateY(0);
+            }
+        }
+
+        /* ============================================================
+           VERSION INFO
+           ============================================================ */
+        .version-info {
+            text-align: center;
+            font-size: 12px;
+            color: #94a3b8;
+            margin-top: 16px;
+            padding: 8px;
+            border-top: 1px solid #e2e8f0;
+        }
+
+        .version-info button {
+            background: none;
+            border: none;
+            color: #64748b;
+            font-size: 12px;
+            text-decoration: underline;
+            cursor: pointer;
+            padding: 4px 8px;
+            min-height: 30px;
+        }
+
+        .text-center {
+            text-align: center;
+        }
+        .text-muted {
+            color: #94a3b8;
+        }
+
+        /* ============================================================
+           RESPONSIVE
+           ============================================================ */
+        @media (max-width: 400px) {
+            .score-row .s-select {
+                width: 110px;
+            }
+            .history-table .score-cell select {
+                width: 60px;
+                font-size: 12px;
+                padding: 3px 20px 3px 4px;
+                min-height: 28px;
+            }
+            .tab-bar button {
+                font-size: 11px;
+                padding: 6px 4px;
+                min-height: 34px;
+            }
+            .setup-row {
+                flex-wrap: wrap;
+            }
+            .setup-row input[type="text"] {
+                width: 100%;
+            }
+            .modal {
+                padding: 20px;
+                margin: 10px;
+            }
+            .modal-header h2 {
+                font-size: 18px;
+            }
+            .toast {
+                font-size: 13px;
+                padding: 10px 16px;
+            }
+            .toast button {
+                font-size: 12px;
+                padding: 2px 12px;
+                margin-left: 8px;
+            }
+            .share-url-container {
+                flex-wrap: wrap;
+            }
+            .share-url-container input {
+                width: 100%;
+            }
+            .share-url-container button {
+                width: 100%;
+            }
+            .share-qr img {
+                max-width: 150px;
+            }
+        }
+    </style>
 </head>
 <body>
     <div id="app">
@@ -20,7 +961,7 @@
             </div>
         </header>
 
-        <!-- Tabs -->
+        <!-- Tab Bar -->
         <nav class="tab-bar" id="tabBar">
             <button class="active" data-tab="playing">🎯 Play</button>
             <button data-tab="standings">🏆 Standings</button>
@@ -79,14 +1020,1430 @@
         </footer>
     </div>
 
-    <!-- JavaScript modules -->
-    <script type="importmap">
-        {
-            "imports": {
-                "/js/": "./js/"
+    <script>
+        (function() {
+            'use strict';
+
+            // ============================================================
+            // CONFIG / SETTINGS
+            // ============================================================
+            var PAIRING_TABLES = {
+                4: [
+                    [
+                        ['A', 'C'],
+                        ['D', 'B']
+                    ],
+                    [
+                        ['B', 'C'],
+                        ['A', 'D']
+                    ],
+                    [
+                        ['C', 'D'],
+                        ['B', 'A']
+                    ]
+                ],
+                5: [
+                    [
+                        ['A', 'E'],
+                        ['D', 'B']
+                    ],
+                    [
+                        ['B', 'C'],
+                        ['E', 'D']
+                    ],
+                    [
+                        ['D', 'A'],
+                        ['C', 'E']
+                    ],
+                    [
+                        ['E', 'B'],
+                        ['A', 'C']
+                    ],
+                    [
+                        ['C', 'D'],
+                        ['B', 'A']
+                    ]
+                ],
+                6: [
+                    [
+                        ['D', 'E'],
+                        ['A', 'F'],
+                        ['B', 'C']
+                    ],
+                    [
+                        ['C', 'F'],
+                        ['B', 'E'],
+                        ['A', 'D']
+                    ],
+                    [
+                        ['A', 'C'],
+                        ['D', 'F'],
+                        ['B', 'E']
+                    ],
+                    [
+                        ['B', 'E'],
+                        ['C', 'D'],
+                        ['A', 'F']
+                    ],
+                    [
+                        ['B', 'F'],
+                        ['A', 'E'],
+                        ['C', 'D']
+                    ],
+                    [
+                        ['A', 'D'],
+                        ['C', 'F'],
+                        ['B', 'E']
+                    ],
+                    [
+                        ['C', 'E'],
+                        ['A', 'B'],
+                        ['D', 'F']
+                    ],
+                    [
+                        ['B', 'D'],
+                        ['E', 'F'],
+                        ['A', 'C']
+                    ],
+                    [
+                        ['B', 'C'],
+                        ['A', 'F'],
+                        ['D', 'E']
+                    ],
+                    [
+                        ['D', 'F'],
+                        ['C', 'E'],
+                        ['A', 'B']
+                    ],
+                    [
+                        ['A', 'D'],
+                        ['B', 'C'],
+                        ['E', 'F']
+                    ],
+                    [
+                        ['E', 'F'],
+                        ['A', 'B'],
+                        ['C', 'D']
+                    ],
+                    [
+                        ['A', 'C'],
+                        ['D', 'E'],
+                        ['B', 'F']
+                    ],
+                    [
+                        ['B', 'F'],
+                        ['C', 'D'],
+                        ['A', 'E']
+                    ],
+                    [
+                        ['A', 'E'],
+                        ['B', 'D'],
+                        ['C', 'F']
+                    ]
+                ],
+                7: [
+                    [
+                        ['G', 'E'],
+                        ['D', 'F']
+                    ],
+                    [
+                        ['F', 'B'],
+                        ['A', 'E']
+                    ],
+                    [
+                        ['E', 'C'],
+                        ['G', 'B']
+                    ],
+                    [
+                        ['B', 'D'],
+                        ['F', 'C']
+                    ],
+                    [
+                        ['C', 'A'],
+                        ['E', 'D']
+                    ],
+                    [
+                        ['D', 'G'],
+                        ['B', 'A']
+                    ],
+                    [
+                        ['A', 'F'],
+                        ['C', 'G']
+                    ]
+                ],
+                8: [
+                    [
+                        ['H', 'G'],
+                        ['F', 'C'],
+                        ['B', 'A'],
+                        ['D', 'E']
+                    ],
+                    [
+                        ['G', 'D'],
+                        ['H', 'E'],
+                        ['C', 'B'],
+                        ['F', 'A']
+                    ],
+                    [
+                        ['H', 'C'],
+                        ['E', 'B'],
+                        ['D', 'A'],
+                        ['G', 'F']
+                    ],
+                    [
+                        ['E', 'G'],
+                        ['B', 'F'],
+                        ['A', 'C'],
+                        ['D', 'H']
+                    ],
+                    [
+                        ['A', 'E'],
+                        ['C', 'G'],
+                        ['F', 'H'],
+                        ['B', 'D']
+                    ],
+                    [
+                        ['C', 'D'],
+                        ['G', 'B'],
+                        ['E', 'F'],
+                        ['H', 'A']
+                    ],
+                    [
+                        ['D', 'F'],
+                        ['E', 'C'],
+                        ['B', 'H'],
+                        ['A', 'G']
+                    ]
+                ],
+                9: [
+                    [
+                        ['B', 'C'],
+                        ['D', 'G'],
+                        ['E', 'I'],
+                        ['F', 'H']
+                    ],
+                    [
+                        ['C', 'A'],
+                        ['E', 'H'],
+                        ['F', 'G'],
+                        ['D', 'I']
+                    ],
+                    [
+                        ['A', 'B'],
+                        ['F', 'I'],
+                        ['D', 'H'],
+                        ['E', 'G']
+                    ],
+                    [
+                        ['E', 'F'],
+                        ['G', 'A'],
+                        ['H', 'C'],
+                        ['I', 'B']
+                    ],
+                    [
+                        ['F', 'D'],
+                        ['H', 'B'],
+                        ['I', 'A'],
+                        ['G', 'C']
+                    ],
+                    [
+                        ['D', 'E'],
+                        ['I', 'C'],
+                        ['G', 'B'],
+                        ['H', 'A']
+                    ],
+                    [
+                        ['H', 'I'],
+                        ['A', 'D'],
+                        ['B', 'F'],
+                        ['C', 'E']
+                    ],
+                    [
+                        ['I', 'G'],
+                        ['B', 'E'],
+                        ['C', 'D'],
+                        ['A', 'F']
+                    ],
+                    [
+                        ['G', 'H'],
+                        ['C', 'F'],
+                        ['A', 'E'],
+                        ['B', 'D']
+                    ]
+                ]
+            };
+
+            var DEFAULT_SETTINGS = {
+                gameMode: 'individual',
+                oddPlayerHandling: 'zero'
+            };
+
+            var APP_VERSION = '1.2.0';
+            var VERSION_STORAGE_KEY = 'discgolf_app_version';
+            var STATE_STORAGE_KEY = 'discgolfTrackerState';
+
+            // ============================================================
+            // UTILITY HELPERS
+            // ============================================================
+            function escapeHtml(str) {
+                if (!str) return '';
+                var div = document.createElement('div');
+                div.textContent = str;
+                return div.innerHTML;
             }
-        }
+
+            function shuffleArray(arr) {
+                var a = arr.slice();
+                for (var i = a.length - 1; i > 0; i--) {
+                    var j = Math.floor(Math.random() * (i + 1));
+                    var temp = a[i];
+                    a[i] = a[j];
+                    a[j] = temp;
+                }
+                return a;
+            }
+
+            function getPlayerLetterMap(players) {
+                var map = {};
+                var letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
+                players.forEach(function(name, index) {
+                    map[letters[index]] = name;
+                });
+                return map;
+            }
+
+            function getScoreOptions() {
+                return [
+                    { value: -3, label: '-3 (Albatross)' },
+                    { value: -2, label: '-2 (Eagle)' },
+                    { value: -1, label: '-1 (Birdie)' },
+                    { value: 0, label: '0 (Par)' },
+                    { value: 1, label: '+1 (Bogey)' },
+                    { value: 2, label: '+2 (Double)' },
+                    { value: 3, label: '+3 (Triple)' },
+                    { value: 4, label: '+4' },
+                    { value: 5, label: '+5' },
+                    { value: 6, label: '+6' },
+                    { value: 7, label: '+7' },
+                    { value: 8, label: '+8' },
+                    { value: 9, label: '+9' },
+                    { value: 10, label: '+10' }
+                ];
+            }
+
+            function getSelectOptionsHTML(options, selectedValue) {
+                return options.map(function(opt) {
+                    return '<option value="' + opt.value + '" ' + (opt.value === selectedValue ? 'selected' : '') +
+                        '>' + opt.label + '</option>';
+                }).join('');
+            }
+
+            // ============================================================
+            // STORAGE
+            // ============================================================
+            function getDefaultState() {
+                return {
+                    players: [],
+                    scores: {},
+                    teamScores: {},
+                    oddPlayerScores: {},
+                    removedPlayersHistory: {},
+                    currentHole: 1,
+                    phase: 'setup',
+                    settings: { ...DEFAULT_SETTINGS },
+                    teamShuffleOrder: [],
+                    teamShuffleIndex: 0,
+                    teamHoleInShuffle: 0
+                };
+            }
+
+            function loadState() {
+                try {
+                    var raw = localStorage.getItem(STATE_STORAGE_KEY);
+                    if (!raw) return getDefaultState();
+                    var parsed = JSON.parse(raw);
+                    if (!parsed.players) parsed.players = [];
+                    if (!parsed.scores) parsed.scores = {};
+                    if (!parsed.removedPlayersHistory) parsed.removedPlayersHistory = {};
+                    if (!parsed.currentHole || parsed.currentHole < 1) parsed.currentHole = 1;
+                    if (!['setup', 'playing', 'complete'].includes(parsed.phase)) parsed.phase = 'setup';
+                    if (!parsed.settings) parsed.settings = { ...DEFAULT_SETTINGS };
+                    if (!parsed.teamScores) parsed.teamScores = {};
+                    if (!parsed.oddPlayerScores) parsed.oddPlayerScores = {};
+                    if (!parsed.teamShuffleOrder) parsed.teamShuffleOrder = [];
+                    if (!parsed.teamShuffleIndex) parsed.teamShuffleIndex = 0;
+                    if (!parsed.teamHoleInShuffle) parsed.teamHoleInShuffle = 0;
+                    return parsed;
+                } catch (_) {
+                    return getDefaultState();
+                }
+            }
+
+            function saveState(state) {
+                try {
+                    localStorage.setItem(STATE_STORAGE_KEY, JSON.stringify(state));
+                } catch (e) {
+                    console.warn('Save failed:', e);
+                    throw e;
+                }
+            }
+
+            function checkVersion() {
+                try {
+                    var saved = localStorage.getItem(VERSION_STORAGE_KEY);
+                    if (saved && saved !== APP_VERSION) {
+                        localStorage.setItem(VERSION_STORAGE_KEY, APP_VERSION);
+                        return true;
+                    } else if (!saved) {
+                        localStorage.setItem(VERSION_STORAGE_KEY, APP_VERSION);
+                    }
+                    return false;
+                } catch (_) {
+                    return false;
+                }
+            }
+
+            // ============================================================
+            // GAME MODES
+            // ============================================================
+            var IndividualMode = {
+                init: function(state) {},
+                getPlayingOrder: function(state) {
+                    return state.players.slice();
+                },
+                renderPlay: function(state, container, callbacks) {
+                    var players = state.players;
+                    if (!players || players.length === 0) {
+                        container.innerHTML =
+                            '<div class="text-center text-muted" style="padding:30px 0;"><p style="font-size:16px;">No players</p></div>';
+                        return;
+                    }
+                    var idx = state.currentHole - 1;
+                    var options = getScoreOptions();
+                    var html = '<div class="hole-header">⛳ Hole ' + state.currentHole +
+                        '</div><div class="score-entry">';
+                    for (var i = 0; i < players.length; i++) {
+                        var p = players[i];
+                        var currentVal = (state.scores[p] && state.scores[p][idx] !== undefined) ? state.scores[p][
+                            idx
+                        ] : 0;
+                        html += '<div class="score-row" data-player="' + escapeHtml(p) +
+                            '"><span class="s-name">' + escapeHtml(p) +
+                            '</span><div class="s-select"><select data-player="' + escapeHtml(p) + '">' +
+                            getSelectOptionsHTML(options, currentVal) +
+                            '</select></div></div>';
+                    }
+                    html += '<div class="save-row"><button id="saveHoleBtn" class="success">Save hole</button></div></div>';
+                    container.innerHTML = html;
+                    var saveBtn = container.querySelector('#saveHoleBtn');
+                    if (saveBtn) {
+                        saveBtn.addEventListener('click', function() { callbacks.onSaveHole(); });
+                    }
+                    setTimeout(function() {
+                        var firstSelect = container.querySelector('select');
+                        if (firstSelect) firstSelect.focus();
+                    }, 100);
+                },
+                saveHole: function(state) {
+                    var idx = state.currentHole - 1;
+                    var selects = document.querySelectorAll('#tab-playing select[data-player]');
+                    var values = {};
+                    var allValid = true;
+                    selects.forEach(function(sel) {
+                        var player = sel.dataset.player;
+                        var val = parseInt(sel.value);
+                        if (!isNaN(val)) {
+                            values[player] = val;
+                        } else {
+                            allValid = false;
+                        }
+                    });
+                    if (!allValid) {
+                        alert('Invalid score.');
+                        return false;
+                    }
+                    for (var i = 0; i < state.players.length; i++) {
+                        var p = state.players[i];
+                        if (!state.scores[p]) state.scores[p] = [];
+                        while (state.scores[p].length <= idx) state.scores[p].push(null);
+                        state.scores[p][idx] = values[p] !== undefined ? values[p] : 0;
+                    }
+                    return true;
+                },
+                renderStandings: function(state) {
+                    var result = [];
+                    for (var i = 0; i < state.players.length; i++) {
+                        var p = state.players[i];
+                        var scores = state.scores[p] || [];
+                        var valid = scores.filter(function(s) { return s !== null && s !== undefined; });
+                        var holes = valid.length;
+                        var total = holes > 0 ? valid.reduce(function(a, b) { return a + b; }, 0) : null;
+                        result.push({ player: p, holesPlayed: holes, total: total });
+                    }
+                    result.sort(function(a, b) {
+                        if (a.total === null && b.total === null) return a.player.localeCompare(b.player);
+                        if (a.total === null) return 1;
+                        if (b.total === null) return -1;
+                        if (a.total !== b.total) return a.total - b.total;
+                        if (a.holesPlayed !== b.holesPlayed) return b.holesPlayed - a.holesPlayed;
+                        return a.player.localeCompare(b.player);
+                    });
+                    var rank = 1;
+                    for (var j = 0; j < result.length; j++) {
+                        if (j === 0) {
+                            result[j].rank = rank;
+                        } else {
+                            var prev = result[j - 1];
+                            var curr = result[j];
+                            if (curr.total === null && prev.total === null) {
+                                result[j].rank = prev.rank;
+                            } else if (curr.total === null) {
+                                result[j].rank = j + 1;
+                            } else if (prev.total !== null && curr.total === prev.total && curr.holesPlayed === prev
+                                .holesPlayed) {
+                                result[j].rank = prev.rank;
+                            } else {
+                                result[j].rank = j + 1;
+                            }
+                        }
+                    }
+                    return result;
+                },
+                renderHistory: function(state) {
+                    var players = state.players;
+                    if (!players || players.length === 0) return { isEmpty: true };
+                    var holeCount = (state.scores[players[0]] || []).length;
+                    if (holeCount === 0) return { isEmpty: true };
+                    var rows = [];
+                    for (var h = holeCount - 1; h >= 0; h--) {
+                        var row = { hole: h + 1, scores: {} };
+                        for (var i = 0; i < players.length; i++) {
+                            var p = players[i];
+                            row.scores[p] = (state.scores[p] && state.scores[p][h] !== undefined) ? state.scores[p][
+                                h
+                            ] : 0;
+                        }
+                        rows.push(row);
+                    }
+                    var totals = {};
+                    for (var i = 0; i < players.length; i++) {
+                        var p = players[i];
+                        var scores = state.scores[p] || [];
+                        var valid = scores.filter(function(s) { return s !== null && s !== undefined; });
+                        totals[p] = valid.reduce(function(a, b) { return a + b; }, 0);
+                    }
+                    return { isEmpty: false, rows: rows, totals: totals, players: players };
+                },
+                getTotalScore: function(state, player) {
+                    var scores = state.scores[player] || [];
+                    var valid = scores.filter(function(s) { return s !== null && s !== undefined; });
+                    return valid.reduce(function(a, b) { return a + b; }, 0);
+                }
+            };
+
+            var TeamMode = {
+                init: function(state) {
+                    if (!state.teamShuffleOrder || state.teamShuffleOrder.length === 0) {
+                        this.reseedShuffle(state);
+                    }
+                    if (!state.teamScores) state.teamScores = {};
+                    if (!state.oddPlayerScores) state.oddPlayerScores = {};
+                    if (!state.teamShuffleIndex) state.teamShuffleIndex = 0;
+                    if (!state.teamHoleInShuffle) state.teamHoleInShuffle = 0;
+                },
+                reseedShuffle: function(state) {
+                    var shuffled = shuffleArray(state.players);
+                    state.teamShuffleOrder = shuffled;
+                    state.teamShuffleIndex = 0;
+                    state.teamHoleInShuffle = 0;
+                },
+                getPairKey: function(p1, p2) {
+                    var sorted = [p1, p2].sort();
+                    return sorted.join('-');
+                },
+                getPairsForCurrentHole: function(state) {
+                    var players = state.players;
+                    var count = players.length;
+                    var table = PAIRING_TABLES[count];
+                    if (!table) return null;
+                    var shuffleOrder = state.teamShuffleOrder;
+                    var holeInShuffle = state.teamHoleInShuffle;
+                    if (shuffleOrder.length !== count || !shuffleOrder.every(function(p) { return players.includes(p); })) {
+                        this.reseedShuffle(state);
+                        return this.getPairsForCurrentHole(state);
+                    }
+                    var tableIndex = holeInShuffle % table.length;
+                    var row = table[tableIndex];
+                    var letterMap = getPlayerLetterMap(shuffleOrder);
+                    var pairs = row.map(function(pair) { return pair.map(function(letter) { return letterMap[letter]; }); });
+                    var allPlayersInPairs = pairs.flat();
+                    var oddPlayer = players.find(function(p) { return !allPlayersInPairs.includes(p); });
+                    return { pairs: pairs, oddPlayer: oddPlayer };
+                },
+                renderPlay: function(state, container, callbacks) {
+                    var players = state.players;
+                    if (!players || players.length === 0) {
+                        container.innerHTML =
+                            '<div class="text-center text-muted" style="padding:30px 0;"><p style="font-size:16px;">No players</p></div>';
+                        return;
+                    }
+                    var pairData = this.getPairsForCurrentHole(state);
+                    if (!pairData) {
+                        container.innerHTML = '<div class="text-center text-muted">No pairing table for ' + players
+                            .length + ' players.</div>';
+                        return;
+                    }
+                    var pairs = pairData.pairs;
+                    var oddPlayer = pairData.oddPlayer;
+                    var idx = state.currentHole - 1;
+                    var options = getScoreOptions();
+                    var html = '<div class="hole-header">⛳ Hole ' + state.currentHole +
+                        '</div><div class="score-entry">';
+                    for (var i = 0; i < pairs.length; i++) {
+                        var pair = pairs[i];
+                        var key = this.getPairKey(pair[0], pair[1]);
+                        var currentVal = (state.teamScores[key] && state.teamScores[key][idx] !== undefined) ? state
+                            .teamScores[key][idx] : 0;
+                        html += '<div class="score-row" data-pair="' + escapeHtml(key) +
+                            '"><span class="s-name">' + escapeHtml(pair.join(' & ')) +
+                            '</span><div class="s-select"><select data-pair="' + escapeHtml(key) + '">' +
+                            getSelectOptionsHTML(options, currentVal) +
+                            '</select></div></div>';
+                    }
+                    if (oddPlayer) {
+                        var setting = state.settings.oddPlayerHandling || 'zero';
+                        if (setting === 'record') {
+                            var currentVal2 = (state.oddPlayerScores[oddPlayer] && state.oddPlayerScores[oddPlayer][
+                                idx
+                            ] !== undefined) ? state.oddPlayerScores[oddPlayer][idx] : 0;
+                            html += '<div class="score-row" data-player="' + escapeHtml(oddPlayer) +
+                                '"><span class="s-name">' + escapeHtml(oddPlayer) +
+                                ' (odd)</span><div class="s-select"><select data-odd="' + escapeHtml(oddPlayer) +
+                                '">' + getSelectOptionsHTML(options, currentVal2) +
+                                '</select></div></div>';
+                        } else {
+                            html += '<div class="odd-player-note">' + escapeHtml(oddPlayer) +
+                                ' is without a partner and gets 0 (Par) for this hole.</div>';
+                        }
+                    }
+                    html += '<div class="save-row"><button id="saveHoleBtn" class="success">Save hole</button></div></div>';
+                    container.innerHTML = html;
+                    var saveBtn = container.querySelector('#saveHoleBtn');
+                    if (saveBtn) {
+                        saveBtn.addEventListener('click', function() { callbacks.onSaveHole(); });
+                    }
+                    setTimeout(function() {
+                        var firstSelect = container.querySelector('select');
+                        if (firstSelect) firstSelect.focus();
+                    }, 100);
+                },
+                saveHole: function(state) {
+                    var idx = state.currentHole - 1;
+                    var pairSelects = document.querySelectorAll('#tab-playing select[data-pair]');
+                    var oddSelects = document.querySelectorAll('#tab-playing select[data-odd]');
+                    for (var k = 0; k < pairSelects.length; k++) {
+                        var sel = pairSelects[k];
+                        var key = sel.dataset.pair;
+                        var val = parseInt(sel.value);
+                        if (isNaN(val)) {
+                            alert('Invalid score for pair.');
+                            return false;
+                        }
+                        if (!state.teamScores[key]) state.teamScores[key] = [];
+                        while (state.teamScores[key].length <= idx) state.teamScores[key].push(null);
+                        state.teamScores[key][idx] = val;
+                    }
+                    for (var m = 0; m < oddSelects.length; m++) {
+                        var sel2 = oddSelects[m];
+                        var player = sel2.dataset.odd;
+                        var val2 = parseInt(sel2.value);
+                        if (isNaN(val2)) {
+                            alert('Invalid score for odd player.');
+                            return false;
+                        }
+                        if (!state.oddPlayerScores[player]) state.oddPlayerScores[player] = [];
+                        while (state.oddPlayerScores[player].length <= idx) state.oddPlayerScores[player].push(null);
+                        state.oddPlayerScores[player][idx] = val2;
+                    }
+                    var pairData = this.getPairsForCurrentHole(state);
+                    if (pairData && pairData.oddPlayer) {
+                        var odd = pairData.oddPlayer;
+                        var setting = state.settings.oddPlayerHandling || 'zero';
+                        if (setting === 'zero') {
+                            if (!state.oddPlayerScores[odd]) state.oddPlayerScores[odd] = [];
+                            while (state.oddPlayerScores[odd].length <= idx) state.oddPlayerScores[odd].push(null);
+                            state.oddPlayerScores[odd][idx] = 0;
+                        }
+                    }
+                    var table = PAIRING_TABLES[state.players.length];
+                    if (table) {
+                        var nextHole = state.teamHoleInShuffle + 1;
+                        if (nextHole >= table.length) {
+                            this.reseedShuffle(state);
+                            state.teamHoleInShuffle = 0;
+                        } else {
+                            state.teamHoleInShuffle = nextHole;
+                        }
+                    }
+                    return true;
+                },
+                renderStandings: function(state) {
+                    var players = state.players;
+                    var result = [];
+                    for (var i = 0; i < players.length; i++) {
+                        var p = players[i];
+                        var total = this.getTotalScore(state, p);
+                        var holes = this.getHoleCount(state);
+                        result.push({ player: p, holesPlayed: holes, total: holes > 0 ? total : null });
+                    }
+                    result.sort(function(a, b) {
+                        if (a.total === null && b.total === null) return a.player.localeCompare(b.player);
+                        if (a.total === null) return 1;
+                        if (b.total === null) return -1;
+                        if (a.total !== b.total) return a.total - b.total;
+                        if (a.holesPlayed !== b.holesPlayed) return b.holesPlayed - a.holesPlayed;
+                        return a.player.localeCompare(b.player);
+                    });
+                    var rank = 1;
+                    for (var j = 0; j < result.length; j++) {
+                        if (j === 0) {
+                            result[j].rank = rank;
+                        } else {
+                            var prev = result[j - 1];
+                            var curr = result[j];
+                            if (curr.total === null && prev.total === null) {
+                                result[j].rank = prev.rank;
+                            } else if (curr.total === null) {
+                                result[j].rank = j + 1;
+                            } else if (prev.total !== null && curr.total === prev.total && curr.holesPlayed === prev
+                                .holesPlayed) {
+                                result[j].rank = prev.rank;
+                            } else {
+                                result[j].rank = j + 1;
+                            }
+                        }
+                    }
+                    return result;
+                },
+                renderHistory: function(state) {
+                    var players = state.players;
+                    if (!players || players.length === 0) return { isEmpty: true };
+                    var holeCount = this.getHoleCount(state);
+                    if (holeCount === 0) return { isEmpty: true };
+                    var rows = [];
+                    for (var h = holeCount - 1; h >= 0; h--) {
+                        var row = { hole: h + 1, pairs: {}, odd: {} };
+                        for (var key in state.teamScores) {
+                            var scores = state.teamScores[key] || [];
+                            if (scores[h] !== undefined && scores[h] !== null) {
+                                row.pairs[key] = scores[h];
+                            }
+                        }
+                        for (var i = 0; i < players.length; i++) {
+                            var p = players[i];
+                            var oddScores = state.oddPlayerScores[p] || [];
+                            if (oddScores[h] !== undefined && oddScores[h] !== null) {
+                                row.odd[p] = oddScores[h];
+                            }
+                        }
+                        rows.push(row);
+                    }
+                    var totals = {};
+                    for (var i = 0; i < players.length; i++) {
+                        var p = players[i];
+                        totals[p] = this.getTotalScore(state, p);
+                    }
+                    return { isEmpty: false, rows: rows, totals: totals, players: players, isTeam: true };
+                },
+                getHoleCount: function(state) {
+                    var keys = Object.keys(state.teamScores);
+                    if (keys.length > 0) {
+                        return (state.teamScores[keys[0]] || []).length;
+                    }
+                    var oddKeys = Object.keys(state.oddPlayerScores);
+                    if (oddKeys.length > 0) {
+                        return (state.oddPlayerScores[oddKeys[0]] || []).length;
+                    }
+                    return 0;
+                },
+                getTotalScore: function(state, player) {
+                    var total = 0;
+                    for (var key in state.teamScores) {
+                        var parts = key.split('-');
+                        if (parts[0] === player || parts[1] === player) {
+                            var scores = state.teamScores[key] || [];
+                            var valid = scores.filter(function(s) { return s !== null && s !== undefined; });
+                            total += valid.reduce(function(a, b) { return a + b; }, 0);
+                        }
+                    }
+                    var oddScores = state.oddPlayerScores[player] || [];
+                    var validOdd = oddScores.filter(function(s) { return s !== null && s !== undefined; });
+                    total += validOdd.reduce(function(a, b) { return a + b; }, 0);
+                    return total;
+                },
+                getPairingsForDisplay: function(state) {
+                    return this.getPairsForCurrentHole(state);
+                }
+            };
+
+            // ============================================================
+            // UI RENDERER HELPERS
+            // ============================================================
+            function renderVersion(version) {
+                document.getElementById('versionDisplay').textContent = 'Version ' + version;
+            }
+
+            function showToast(message) {
+                var toast = document.getElementById('versionToast');
+                var msgEl = document.getElementById('versionToastMessage');
+                msgEl.textContent = message;
+                toast.classList.add('show');
+                var btn = document.getElementById('versionToastBtn');
+                btn.onclick = function() {
+                    toast.classList.remove('show');
+                    clearTimeout(toast._timeout);
+                };
+                clearTimeout(toast._timeout);
+                toast._timeout = setTimeout(function() {
+                    toast.classList.remove('show');
+                }, 6000);
+            }
+
+            function showCopyToast(message) {
+                var toast = document.getElementById('copyToast');
+                toast.textContent = message;
+                toast.classList.add('show');
+                clearTimeout(toast._copyTimeout);
+                toast._copyTimeout = setTimeout(function() {
+                    toast.classList.remove('show');
+                }, 2500);
+            }
+
+            function renderHelpModal() {
+                var content = document.getElementById('helpContent');
+                content.innerHTML =
+                    '<p><strong>How to use:</strong></p><ul><li><strong>Settings</strong> — Add players, choose game mode, then tap <strong>"Start round"</strong></li><li><strong>Play</strong> — Select scores and tap <strong>"Save hole"</strong></li><li><strong>History</strong> — View and edit scores from any hole</li><li><strong>Standings</strong> — See live rankings and total scores</li></ul><p><strong>Game modes:</strong></p><ul><li><strong>Individual</strong> — Each player scores their own game.</li><li><strong>Team (rotating pairs)</strong> — Players are paired each hole according to a schedule. Both players in a pair receive the same score.</li></ul><div class="privacy-badge"><strong>🔒 Privacy &amp; Data</strong><ul><li>All data is stored <strong>locally</strong> in your browser\'s Local Storage</li><li>No data is ever sent to any server — <strong>100% offline</strong></li><li>No cookies, no tracking, no analytics</li><li>Data is <strong>not</strong> shared between devices or browsers</li><li class="warn">⚠️ If you clear your browser cache/history, your scores will be lost</li></ul></div><p style="margin-top:12px;font-size:13px;color:#94a3b8;">Version ' +
+                    APP_VERSION + ' · Open source</p>';
+            }
+
+            function setupModals() {
+                // Help
+                var helpBtn = document.getElementById('helpBtn');
+                var helpModal = document.getElementById('helpModal');
+                var helpClose = document.getElementById('helpCloseBtn');
+
+                function openHelp() {
+                    helpModal.classList.add('active');
+                    document.body.style.overflow = 'hidden';
+                }
+
+                function closeHelp() {
+                    helpModal.classList.remove('active');
+                    document.body.style.overflow = '';
+                }
+                helpBtn.addEventListener('click', openHelp);
+                helpClose.addEventListener('click', closeHelp);
+                helpModal.addEventListener('click', function(e) {
+                    if (e.target === helpModal) closeHelp();
+                });
+                document.addEventListener('keydown', function(e) {
+                    if (e.key === 'Escape' && helpModal.classList.contains('active')) closeHelp();
+                });
+
+                // Share
+                var shareBtn = document.getElementById('shareBtn');
+                var shareModal = document.getElementById('shareModal');
+                var shareClose = document.getElementById('shareCloseBtn');
+                var shareUrlInput = document.getElementById('shareUrlInput');
+                var qrImg = document.getElementById('qrCodeImage');
+                var copyBtn = document.getElementById('copyShareBtn');
+
+                function openShare() {
+                    var url = window.location.href.split('?')[0];
+                    shareUrlInput.value = url;
+                    qrImg.src = 'https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=' + encodeURIComponent(
+                    url);
+                    shareModal.classList.add('active');
+                    document.body.style.overflow = 'hidden';
+                }
+
+                function closeShare() {
+                    shareModal.classList.remove('active');
+                    document.body.style.overflow = '';
+                }
+                shareBtn.addEventListener('click', openShare);
+                shareClose.addEventListener('click', closeShare);
+                shareModal.addEventListener('click', function(e) {
+                    if (e.target === shareModal) closeShare();
+                });
+                document.addEventListener('keydown', function(e) {
+                    if (e.key === 'Escape' && shareModal.classList.contains('active')) closeShare();
+                });
+
+                copyBtn.addEventListener('click', function() {
+                    var text = shareUrlInput.value;
+                    if (navigator.clipboard && navigator.clipboard.writeText) {
+                        navigator.clipboard.writeText(text).then(function() {
+                            showCopyToast('✅ Copied!');
+                        }).catch(function() {
+                            fallbackCopy(text);
+                        });
+                    } else {
+                        fallbackCopy(text);
+                    }
+                });
+
+                function fallbackCopy(text) {
+                    var ta = document.createElement('textarea');
+                    ta.value = text;
+                    ta.style.position = 'fixed';
+                    ta.style.left = '-9999px';
+                    document.body.appendChild(ta);
+                    ta.select();
+                    try {
+                        document.execCommand('copy');
+                        showCopyToast('✅ Copied!');
+                    } catch (_) {
+                        showCopyToast('❌ Copy failed.');
+                    }
+                    document.body.removeChild(ta);
+                }
+                shareUrlInput.addEventListener('click', function() { this.select(); });
+            }
+
+            // ============================================================
+            // APP STATE & RENDER FUNCTIONS
+            // ============================================================
+            var state = loadState();
+            var tabs = document.querySelectorAll('.tab-bar button');
+            var sections = {
+                playing: document.getElementById('tab-playing'),
+                standings: document.getElementById('tab-standings'),
+                history: document.getElementById('tab-history'),
+                settings: document.getElementById('tab-settings')
+            };
+
+            function renderTab(tab) {
+                state = loadState();
+                switch (tab) {
+                    case 'playing':
+                        renderPlaying();
+                        break;
+                    case 'standings':
+                        renderStandings();
+                        break;
+                    case 'history':
+                        renderHistory();
+                        break;
+                    case 'settings':
+                        renderSettings();
+                        break;
+                }
+            }
+
+            function renderPlaying() {
+                var container = sections.playing;
+                var mode = state.settings.gameMode || 'individual';
+
+                if (state.phase === 'setup' || state.players.length === 0) {
+                    container.innerHTML =
+                        '<div class="text-center text-muted" style="padding:30px 0;"><p style="font-size:16px;">No active round</p><p style="font-size:14px; margin-top:8px;">Add players in Settings and start a round</p></div>';
+                    return;
+                }
+                if (state.phase === 'complete') {
+                    container.innerHTML =
+                        '<div class="complete-msg">🏆 Round complete!</div><div class="complete-actions"><button id="newRoundFromPlayingBtn" class="success">New round</button></div>';
+                    var newBtn = container.querySelector('#newRoundFromPlayingBtn');
+                    if (newBtn) {
+                        newBtn.addEventListener('click', function() {
+                            if (confirm('Start a new round? All current data will be cleared.')) {
+                                resetGame();
+                            }
+                        });
+                    }
+                    return;
+                }
+
+                var modeObj = mode === 'individual' ? IndividualMode : TeamMode;
+                modeObj.renderPlay(state, container, {
+                    onSaveHole: function() { handleSaveHole(); }
+                });
+            }
+
+            function renderStandings() {
+                var container = sections.standings;
+                var mode = state.settings.gameMode || 'individual';
+                var modeObj = mode === 'individual' ? IndividualMode : TeamMode;
+                var data = modeObj.renderStandings(state);
+
+                if (!data || data.length === 0) {
+                    container.innerHTML = '<h2>Overall Standings</h2><div class="standings-empty">No data</div>';
+                    return;
+                }
+                var html = '<h2>Overall Standings</h2><div class="standings-wrap"><table class="standings-table"><thead><tr><th>Rank</th><th>Player</th><th class="holes">Holes</th><th class="total">Total</th></tr></thead><tbody>';
+                for (var i = 0; i < data.length; i++) {
+                    var row = data[i];
+                    var totalDisplay = row.total !== null ? row.total : '—';
+                    html += '<tr><td class="rank">' + row.rank + '</td><td class="player-name">' + escapeHtml(row
+                        .player) + '</td><td class="holes">' + row.holesPlayed + '</td><td class="total">' +
+                        totalDisplay + '</td></tr>';
+                }
+                html += '</tbody></table></div>';
+                container.innerHTML = html;
+            }
+
+            function renderHistory() {
+                var container = sections.history;
+                var mode = state.settings.gameMode || 'individual';
+                var modeObj = mode === 'individual' ? IndividualMode : TeamMode;
+                var historyData = modeObj.renderHistory(state);
+
+                if (historyData.isEmpty) {
+                    container.innerHTML =
+                        '<h2>Hole History</h2><div class="history-controls"><button id="addHoleBtn" class="success">➕ Add hole</button><button id="clearHistoryBtn" class="danger">🗑️ Clear all scores</button></div><div class="history-empty">No holes played yet</div>';
+                    attachHistoryControls(container);
+                    return;
+                }
+
+                var rows = historyData.rows;
+                var totals = historyData.totals;
+                var players = historyData.players;
+                var isTeam = historyData.isTeam || false;
+
+                var html = '<h2>Hole History</h2><div class="history-controls"><button id="addHoleBtn" class="success">➕ Add hole</button><button id="clearHistoryBtn" class="danger">🗑️ Clear all scores</button></div><div class="history-table-wrap"><table class="history-table"><thead><tr><th>Hole</th>';
+                for (var i = 0; i < players.length; i++) {
+                    html += '<th>' + escapeHtml(players[i]) + '</th>';
+                }
+                html += '</tr></thead><tbody>';
+
+                for (var r = 0; r < rows.length; r++) {
+                    var row = rows[r];
+                    html += '<tr><td class="hole-label">V' + row.hole + '</td>';
+                    if (isTeam) {
+                        var playerScores = {};
+                        for (var key in row.pairs) {
+                            var parts = key.split('-');
+                            var val = row.pairs[key];
+                            playerScores[parts[0]] = val;
+                            playerScores[parts[1]] = val;
+                        }
+                        for (var p in row.odd) {
+                            playerScores[p] = row.odd[p];
+                        }
+                        for (var i2 = 0; i2 < players.length; i2++) {
+                            var p2 = players[i2];
+                            var sc = playerScores[p2] !== undefined ? playerScores[p2] : 0;
+                            html += '<td class="score-cell">' + sc + '</td>';
+                        }
+                    } else {
+                        for (var i3 = 0; i3 < players.length; i3++) {
+                            var p3 = players[i3];
+                            var sc2 = row.scores[p3] !== undefined ? row.scores[p3] : 0;
+                            html += '<td class="score-cell">' + sc2 + '</td>';
+                        }
+                    }
+                    html += '</tr>';
+                }
+
+                html += '<tr class="total-row"><td class="hole-label"><strong>Total</strong></td>';
+                for (var i4 = 0; i4 < players.length; i4++) {
+                    var p4 = players[i4];
+                    html += '<td><strong>' + totals[p4] + '</strong></td>';
+                }
+                html += '</tr></tbody></table></div>';
+                container.innerHTML = html;
+                attachHistoryControls(container);
+            }
+
+            function attachHistoryControls(container) {
+                var addBtn = container.querySelector('#addHoleBtn');
+                var clearBtn = container.querySelector('#clearHistoryBtn');
+
+                if (addBtn) {
+                    addBtn.addEventListener('click', function() {
+                        if (state.players.length === 0) {
+                            alert('Add players first.');
+                            return;
+                        }
+                        var mode = state.settings.gameMode || 'individual';
+                        if (mode === 'individual') {
+                            for (var i = 0; i < state.players.length; i++) {
+                                var p = state.players[i];
+                                if (!state.scores[p]) state.scores[p] = [];
+                                state.scores[p].push(null);
+                            }
+                        } else {
+                            for (var key in state.teamScores) {
+                                state.teamScores[key].push(null);
+                            }
+                            for (var i2 = 0; i2 < state.players.length; i2++) {
+                                var p2 = state.players[i2];
+                                if (!state.oddPlayerScores[p2]) state.oddPlayerScores[p2] = [];
+                                state.oddPlayerScores[p2].push(null);
+                            }
+                        }
+                        state.currentHole = (state.scores[state.players[0]] || []).length;
+                        if (state.phase === 'complete') state.phase = 'playing';
+                        saveState(state);
+                        renderTab('history');
+                        if (document.querySelector('.tab-bar .active').dataset.tab === 'playing') renderTab(
+                        'playing');
+                    });
+                }
+
+                if (clearBtn) {
+                    clearBtn.addEventListener('click', function() {
+                        if (!confirm('⚠️ Clear all scores? This cannot be undone!')) return;
+                        var mode = state.settings.gameMode || 'individual';
+                        if (mode === 'individual') {
+                            for (var i = 0; i < state.players.length; i++) {
+                                state.scores[state.players[i]] = [];
+                            }
+                        } else {
+                            state.teamScores = {};
+                            state.oddPlayerScores = {};
+                            state.teamShuffleOrder = [];
+                            state.teamShuffleIndex = 0;
+                            state.teamHoleInShuffle = 0;
+                            if (state.players.length > 0) {
+                                TeamMode.init(state);
+                            }
+                        }
+                        state.currentHole = 1;
+                        state.phase = 'playing';
+                        saveState(state);
+                        renderTab('history');
+                        if (document.querySelector('.tab-bar .active').dataset.tab === 'playing') renderTab(
+                            'playing');
+                    });
+                }
+            }
+
+            function renderSettings() {
+                var container = sections.settings;
+                var players = state.players;
+
+                var html = '<h2>Player Management</h2>';
+                html +=
+                    '<div class="setup-row"><input type="text" id="playerNameInput" placeholder="Player name" autocomplete="off" /><button id="addPlayerBtn">Add</button></div>';
+                html += '<div class="player-list" id="playerList">';
+
+                if (!players || players.length === 0) {
+                    html += '<span class="text-muted" style="font-size:14px;">No players</span>';
+                } else {
+                    for (var i = 0; i < players.length; i++) {
+                        var p = players[i];
+                        html += '<span class="player-tag">' + escapeHtml(p) +
+                            '<button class="remove-player" data-player="' + escapeHtml(p) +
+                            '">✕</button></span>';
+                    }
+                }
+                html += '</div>';
+
+                html += '<div class="setup-options">';
+                html +=
+                    '<div class="setup-option"><label for="gameModeSelect">Game mode:</label><select id="gameModeSelect">';
+                html += '<option value="individual"' + (state.settings.gameMode === 'individual' ? ' selected' : '') +
+                    '>Individual</option>';
+                html += '<option value="team"' + (state.settings.gameMode === 'team' ? ' selected' : '') +
+                    '>Team (rotating pairs)</option>';
+                html += '</select></div>';
+
+                var oddVisible = state.settings.gameMode === 'team' ? '' : 'display:none;';
+                html += '<div class="setup-option" id="oddPlayerOption" style="' + oddVisible +
+                    '"><label for="oddPlayerSelect">Odd player handling:</label><select id="oddPlayerSelect">';
+                html += '<option value="zero"' + (state.settings.oddPlayerHandling === 'zero' ? ' selected' : '') +
+                    '>Odd player gets 0 (Par)</option>';
+                html += '<option value="record"' + (state.settings.oddPlayerHandling === 'record' ? ' selected' : '') +
+                    '>Record odd player\'s score</option>';
+                html += '</select></div>';
+                html += '</div>';
+
+                html += '<div class="setup-actions">';
+                html += '<button id="roundActionBtn" class="primary">' + getRoundActionLabel() + '</button>';
+                html += '<button id="clearAllBtn" class="clear-all-btn">🗑️ Remove all players</button>';
+                html += '</div>';
+
+                container.innerHTML = html;
+
+                // --- Event listeners ---
+                var nameInput = document.getElementById('playerNameInput');
+                var addBtn = document.getElementById('addPlayerBtn');
+                var playerListEl = document.getElementById('playerList');
+                var gameModeSelect = document.getElementById('gameModeSelect');
+                var oddPlayerSelect = document.getElementById('oddPlayerSelect');
+                var roundActionBtn = document.getElementById('roundActionBtn');
+                var clearAllBtn = document.getElementById('clearAllBtn');
+
+                // Add player
+                addBtn.addEventListener('click', function() {
+                    var name = nameInput.value.trim();
+                    if (!name) { alert('Enter a name.'); return; }
+                    if (state.players.includes(name)) { alert('Player already exists.'); return; }
+                    state.players.push(name);
+                    if (state.settings.gameMode === 'individual') {
+                        state.scores[name] = [];
+                    } else {
+                        state.oddPlayerScores[name] = [];
+                    }
+                    if (state.removedPlayersHistory && state.removedPlayersHistory[name]) {
+                        delete state.removedPlayersHistory[name];
+                    }
+                    saveState(state);
+                    renderSettings();
+                    // Focus back to input and select text
+                    var newInput = document.getElementById('playerNameInput');
+                    if (newInput) {
+                        newInput.focus();
+                        newInput.select();
+                    }
+                });
+
+                // Enter key on name input
+                nameInput.addEventListener('keydown', function(e) {
+                    if (e.key === 'Enter') {
+                        e.preventDefault();
+                        addBtn.click();
+                    }
+                });
+
+                // Remove player via delegation
+                playerListEl.addEventListener('click', function(e) {
+                    var btn = e.target.closest('.remove-player');
+                    if (!btn) return;
+                    var player = btn.dataset.player;
+                    if (confirm('Remove player "' + player + '"?')) {
+                        if (!state.removedPlayersHistory) state.removedPlayersHistory = {};
+                        state.removedPlayersHistory[player] = true;
+                        var idx = state.players.indexOf(player);
+                        if (idx !== -1) {
+                            state.players.splice(idx, 1);
+                            delete state.scores[player];
+                            delete state.oddPlayerScores[player];
+                            for (var key in state.teamScores) {
+                                if (key.includes(player)) {
+                                    delete state.teamScores[key];
+                                }
+                            }
+                            if (state.settings.gameMode === 'team') {
+                                state.teamShuffleOrder = [];
+                                state.teamShuffleIndex = 0;
+                                state.teamHoleInShuffle = 0;
+                                if (state.players.length > 0) {
+                                    TeamMode.init(state);
+                                }
+                            }
+                            saveState(state);
+                            renderSettings();
+                            renderTab('playing');
+                        }
+                    }
+                });
+
+                // Game mode change
+                gameModeSelect.addEventListener('change', function() {
+                    var mode = gameModeSelect.value;
+                    state.settings.gameMode = mode;
+                    state.scores = {};
+                    state.teamScores = {};
+                    state.oddPlayerScores = {};
+                    state.teamShuffleOrder = [];
+                    state.teamShuffleIndex = 0;
+                    state.teamHoleInShuffle = 0;
+                    if (mode === 'individual') {
+                        for (var i2 = 0; i2 < state.players.length; i2++) {
+                            state.scores[state.players[i2]] = [];
+                        }
+                    } else {
+                        if (state.players.length > 0) {
+                            TeamMode.init(state);
+                        }
+                    }
+                    state.currentHole = 1;
+                    state.phase = 'playing';
+                    saveState(state);
+                    renderSettings();
+                    renderTab('playing');
+                    document.getElementById('oddPlayerOption').style.display = mode === 'team' ? '' : 'none';
+                });
+
+                // Odd player handling change
+                oddPlayerSelect.addEventListener('change', function() {
+                    state.settings.oddPlayerHandling = oddPlayerSelect.value;
+                    saveState(state);
+                    renderTab('playing');
+                });
+
+                // Round action
+                roundActionBtn.addEventListener('click', function() {
+                    var label = roundActionBtn.textContent;
+                    if (label.includes('Start')) {
+                        startRound();
+                    } else if (label.includes('End')) {
+                        endRound();
+                    } else if (label.includes('New')) {
+                        if (confirm('Start a new round? All current data will be cleared.')) {
+                            resetGame();
+                        }
+                    }
+                });
+
+                // Clear all players
+                clearAllBtn.addEventListener('click', function() {
+                    if (!confirm('⚠️ Remove all players? This will delete all data!')) return;
+                    state.players = [];
+                    state.scores = {};
+                    state.teamScores = {};
+                    state.oddPlayerScores = {};
+                    state.removedPlayersHistory = {};
+                    state.teamShuffleOrder = [];
+                    state.teamShuffleIndex = 0;
+                    state.teamHoleInShuffle = 0;
+                    state.currentHole = 1;
+                    state.phase = 'setup';
+                    saveState(state);
+                    renderSettings();
+                    renderTab('playing');
+                });
+
+                // Focus input if on settings tab
+                if (document.querySelector('.tab-bar .active') && document.querySelector('.tab-bar .active').dataset
+                    .tab === 'settings') {
+                    nameInput.focus();
+                }
+            }
+
+            function getRoundActionLabel() {
+                if (state.phase === 'setup' || state.players.length === 0) return '🚀 Start round';
+                if (state.phase === 'playing') return '⏹️ End round';
+                return '🔄 New round';
+            }
+
+            function startRound() {
+                if (state.players.length === 0) { alert('Add at least one player.'); return; }
+                var mode = state.settings.gameMode || 'individual';
+                if (mode === 'individual') {
+                    for (var i = 0; i < state.players.length; i++) {
+                        state.scores[state.players[i]] = [];
+                    }
+                } else {
+                    state.teamScores = {};
+                    state.oddPlayerScores = {};
+                    state.teamShuffleOrder = [];
+                    state.teamShuffleIndex = 0;
+                    state.teamHoleInShuffle = 0;
+                    TeamMode.init(state);
+                }
+                state.currentHole = 1;
+                state.phase = 'playing';
+                saveState(state);
+                renderSettings();
+                tabs.forEach(function(b) { b.classList.remove('active'); });
+                document.querySelector('[data-tab="playing"]').classList.add('active');
+                Object.keys(sections).forEach(function(key) {
+                    sections[key].classList.toggle('active', key === 'playing');
+                });
+                renderTab('playing');
+            }
+
+            function endRound() {
+                if (confirm('End the current round? This will mark it as complete.')) {
+                    state.phase = 'complete';
+                    saveState(state);
+                    renderSettings();
+                    renderTab('playing');
+                }
+            }
+
+            function resetGame() {
+                state.players = [];
+                state.scores = {};
+                state.teamScores = {};
+                state.oddPlayerScores = {};
+                state.removedPlayersHistory = {};
+                state.teamShuffleOrder = [];
+                state.teamShuffleIndex = 0;
+                state.teamHoleInShuffle = 0;
+                state.currentHole = 1;
+                state.phase = 'setup';
+                saveState(state);
+                renderSettings();
+                renderTab('playing');
+            }
+
+            function handleSaveHole() {
+                var mode = state.settings.gameMode || 'individual';
+                var modeObj = mode === 'individual' ? IndividualMode : TeamMode;
+                var success = modeObj.saveHole(state);
+                if (!success) return;
+                state.currentHole++;
+                saveState(state);
+                renderTab('playing');
+                var activeTab = document.querySelector('.tab-bar .active');
+                if (activeTab) {
+                    var tab = activeTab.dataset.tab;
+                    if (tab === 'standings') renderStandings();
+                    if (tab === 'history') renderHistory();
+                }
+            }
+
+            // ============================================================
+            // INIT
+            // ============================================================
+            function init() {
+                var versionUpdated = checkVersion();
+                renderVersion(APP_VERSION);
+                setupModals();
+                renderHelpModal();
+
+                document.getElementById('forceRefreshBtn').addEventListener('click', function() {
+                    if (confirm('Load the latest version? This will refresh the page.')) {
+                        localStorage.removeItem(VERSION_STORAGE_KEY);
+                        window.location.href = window.location.href.split('?')[0] + '?v=' + Date.now();
+                    }
+                });
+
+                if (!state.players || state.players.length === 0) {
+                    state = getDefaultState();
+                    state.settings = { ...DEFAULT_SETTINGS };
+                }
+
+                // Ensure settings exist
+                if (!state.settings) state.settings = { ...DEFAULT_SETTINGS };
+                if (!state.teamScores) state.teamScores = {};
+                if (!state.oddPlayerScores) state.oddPlayerScores = {};
+                if (!state.teamShuffleOrder) state.teamShuffleOrder = [];
+                if (!state.teamShuffleIndex) state.teamShuffleIndex = 0;
+                if (!state.teamHoleInShuffle) state.teamHoleInShuffle = 0;
+
+                saveState(state);
+
+                tabs.forEach(function(btn) {
+                    btn.addEventListener('click', function() {
+                        var tab = btn.dataset.tab;
+                        tabs.forEach(function(b) { b.classList.remove('active'); });
+                        btn.classList.add('active');
+                        Object.keys(sections).forEach(function(key) {
+                            sections[key].classList.toggle('active', key === tab);
+                        });
+                        renderTab(tab);
+                    });
+                });
+
+                renderTab('playing');
+
+                if (versionUpdated) {
+                    showToast('🔄 New version ' + APP_VERSION + ' loaded!');
+                }
+                console.log('App initialized. Mode:', state.settings.gameMode);
+            }
+
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', init);
+            } else {
+                init();
+            }
+        })();
     </script>
-    <script type="module" src="js/app.js"></script>
 </body>
 </html>
